@@ -39,39 +39,33 @@ pipeline {
                     def redisHosts = (0..5).collect { "redis-${it}" }
                     def namespace = "swag-intg" // Namespace for the Redis pod
                     def timeoutMinutes = 10 // Set the timeout duration
+                    def running = false
                     
                     // Loop until all Redis instances are running or timeout
                     timeout(time: timeoutMinutes, unit: 'MINUTES') {
-                        while (redisHosts.size() > 0) { // Continue until all hosts are confirmed running
-                            redisHosts.each { host ->
+                        redisHosts.each { host ->
+                            // Check each Redis cluster pod
+                            while (!running) {
+                                running = true // Assume all are running until proven otherwise
                                 // Check the specific Redis pod status
-                                echo "Checking status of pod: ${host} in namespace: ${namespace}"
-                                def podStatus = bat(script: "kubectl get pod ${host} -n ${namespace} --no-headers", returnStdout: true).trim()
+                                echo "kubectl get pods ${host} -n ${namespace} --no-headers"
+                                def podStatus = bat(script: "kubectl get pods ${host} -n ${namespace}  --no-headers", returnStdout: true).trim()
                                 echo "${podStatus}"
-
-                                // Check if the output indicates that the pod is running
-                                if (!podStatus.contains("Running")) {
+                                if (!podStatus.contains("Running") ) {
+                                    running = false // Set to false if the specific pod is not running
                                     echo "${host} in namespace ${namespace} is not running yet."
                                 } else {
                                     echo "${host} in namespace ${namespace} is running."
-                                    redisHosts.remove(host) // Remove the host from the list if it's running
                                 }
-                            }
-
-                            // Wait before the next check if there are still hosts left
-                            if (redisHosts.size() > 0) {
+                                // Wait before the next check
                                 echo "Waiting before checking again..."
-                                sleep(time: 10, unit: 'SECONDS')
+                                sleep(time: 20, unit: 'SECONDS')
                             }
                         }
-
-                        echo "All Redis pods are running."
                     }
                 }
             }
         }
-
-        
 
 
     }
