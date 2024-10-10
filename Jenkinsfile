@@ -44,27 +44,22 @@ pipeline {
                     
                     // Loop until all Redis instances are running or timeout
                     timeout(time: timeoutMinutes, unit: 'MINUTES') {
-                        while (!allRunning) {
-                            allRunning = true // Assume all are running until proven otherwise
-                            
+                        redisHosts.each { host ->
                             // Check each Redis cluster pod
-                            redisHosts.each { host ->
+                            while (!running) {
+                                running = true // Assume all are running until proven otherwise
                                 // Check the specific Redis pod status
                                 def podStatus = bat(script: "kubectl get pods ${host} -n ${namespace} ", returnStdout: true).trim()
                                 echo "${podStatus}"
                                 if (!podStatus.contains("Running") ) {
-                                    allRunning = false // Set to false if the specific pod is not running
+                                    running = false // Set to false if the specific pod is not running
                                     echo "${host} in namespace ${namespace} is not running yet."
                                 } else {
                                     echo "${host} in namespace ${namespace} is running."
-                                    echo "${host} removing from list"
-                                    redisHosts.remove(host)
-                                    echo "${redisHosts}"
                                 }
+                                // Wait before the next check
+                                sleep(time: 5, unit: 'SECONDS')
                             }
-
-                            // Wait before the next check
-                            sleep(time: 5, unit: 'SECONDS')
                         }
                     }
                 }
