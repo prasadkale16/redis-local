@@ -74,8 +74,15 @@ pipeline {
                 script {
                     // Get Redis pod names for initialization
                     def redisPods = bat(returnStdout: true, script: "kubectl get pods -l app=redis -o jsonpath='{.items[*].status.podIP}'  -n swag-intg").trim()
+
+                    def redisNodes = []
+                    for (pod in redisPods.tokenize(' ')) {
+                        redisNodes.add(bat(returnStdout: true, script: "kubectl get pod ${pod} -o jsonpath='{.status.podIP}' -n swag-intg").trim())
+                    }
+
                     echo ""
-                    echo "${redisPods}"
+                    echo "nodes: ${redisNodes}"
+                    /*
                     def ips = redisPods.split(" ")
                     def ipList = ""
                     ips.each { ip ->
@@ -87,7 +94,7 @@ pipeline {
                     echo "redis command :- ${clusterCommand}"
                     // Run the Redis cluster creation command
                     //bat clusterCommand
-                    
+                    */
                 }
             }
         }
