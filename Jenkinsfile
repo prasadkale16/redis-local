@@ -39,7 +39,7 @@ pipeline {
                     def redisHosts = (0..5).collect { "redis-${it}" }
                     def redisSpecificPod = "redis-0" // Specific Redis pod to check
                     def namespace = "swag-intg" // Namespace for the Redis pod
-                    def timeoutMinutes = 10 // Set the timeout duration
+                    def timeoutMinutes = 2 // Set the timeout duration
                     def allRunning = false
                     
                     // Loop until all Redis instances are running or timeout
@@ -50,6 +50,7 @@ pipeline {
                             // Check each Redis cluster pod
                             redisHosts.each { host ->
                                 // Check the specific Redis pod status
+                                bat 'kubectl get pods ${host} -n ${namespace} '
                                 def podStatus = bat(script: "kubectl get pods ${host} -n ${namespace} ", returnStdout: true).trim()
                             
                                 if (podStatus.contains("Running") ) {
