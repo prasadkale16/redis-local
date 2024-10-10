@@ -38,7 +38,7 @@ spec:
       volumes:
       - name: conf
         configMap:
-          name: redis-cluster
+          name: redis-cluster-config
           defaultMode: 0755
   volumeClaimTemplates:
   - metadata:
