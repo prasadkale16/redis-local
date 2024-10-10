@@ -44,6 +44,7 @@ pipeline {
                     // Loop until all Redis instances are running or timeout
                     timeout(time: timeoutMinutes, unit: 'MINUTES') {
                         redisHosts.each { host ->
+                            echo "checking for ${host}"
                             // Check each Redis cluster pod
                             while (running<5) {
                                 // Check the specific Redis pod status
