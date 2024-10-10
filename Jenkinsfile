@@ -6,12 +6,6 @@ pipeline {
     }
 
     stages {
-        stage('Clone Repo') {
-            steps {
-                git 'https://github.com/prasadkale16/redis-local.git'  // Git repository containing YAML files
-            }
-        }
-
         stage('Deploy ConfigMap') {
             steps {
                 script {
