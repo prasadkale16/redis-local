@@ -77,7 +77,7 @@ pipeline {
 
                     def redisNodes = []
                     for (pod in redisPods.tokenize(' ')) {
-                        redisNodes.add(bat(returnStdout: true, script: "kubectl get pod ${pod} -o jsonpath='{.status.podIP}' -n swag-intg").trim())
+                        redisNodes.add(${pod})
                     }
 
                     echo ""
