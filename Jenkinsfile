@@ -49,6 +49,7 @@ pipeline {
                             while (!running) {
                                 running = true // Assume all are running until proven otherwise
                                 // Check the specific Redis pod status
+                                echo "kubectl get pods ${host} -n ${namespace}"
                                 def podStatus = bat(script: "kubectl get pods ${host} -n ${namespace} ", returnStdout: true).trim()
                                 echo "${podStatus}"
                                 if (!podStatus.contains("Running") ) {
@@ -58,7 +59,7 @@ pipeline {
                                     echo "${host} in namespace ${namespace} is running."
                                 }
                                 // Wait before the next check
-                                sleep(time: 5, unit: 'SECONDS')
+                                sleep(time: 20, unit: 'SECONDS')
                             }
                         }
                     }
