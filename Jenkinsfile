@@ -46,12 +46,12 @@ pipeline {
             steps {
                 script {
                     // Get Redis pod names for initialization
-                    def redisPods = sh(returnStdout: true, script: "kubectl get pods -l app=redis -o jsonpath='{.items[*].metadata.name}'  -n swag-intg").trim()
+                    def redisPods = bat(returnStdout: true, script: "kubectl get pods -l app=redis -o jsonpath='{.items[*].metadata.name}'  -n swag-intg").trim()
                     def redisNodes = []
                     
                     // Get the IP addresses of Redis nodes
                     for (pod in redisPods.tokenize(' ')) {
-                        redisNodes.add(sh(returnStdout: true, script: "kubectl get pod ${pod} -o jsonpath='{.status.podIP}' -n swag-intg").trim())
+                        redisNodes.add(bat(returnStdout: true, script: "kubectl get pod ${pod} -o jsonpath='{.status.podIP}' -n swag-intg").trim())
                     }
 
                     // Form a Redis cluster
