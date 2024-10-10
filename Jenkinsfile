@@ -55,7 +55,7 @@ pipeline {
                                     echo "${host} in namespace ${namespace} is not running yet."
                                     // Wait before the next check
                                     echo "Waiting before checking again..."
-                                    sleep(time: 20, unit: 'SECONDS')
+                                    sleep(time: 10, unit: 'SECONDS')
                                 } else {
                                     echo "${host} in namespace ${namespace} is running."
                                     running = true
