@@ -10,7 +10,7 @@ pipeline {
             steps {
                 script {
                     // Apply Redis ConfigMap for Redis configuration
-                    sh 'kubectl apply -f redis-configmap.yaml'
+                    bat 'kubectl apply -f redis-configmap.yaml'
                 }
             }
         }
@@ -19,7 +19,7 @@ pipeline {
             steps {
                 script {
                     // Apply Redis Headless Service for cluster communication
-                    sh 'kubectl apply -f redis-headless-service.yaml'
+                    bat 'kubectl apply -f redis-headless-service.yaml'
                 }
             }
         }
@@ -28,7 +28,7 @@ pipeline {
             steps {
                 script {
                     // Apply Redis StatefulSet for cluster setup
-                    sh 'kubectl apply -f redis-statefulset.yaml'
+                    bat 'kubectl apply -f redis-statefulset.yaml'
                 }
             }
         }
@@ -37,7 +37,7 @@ pipeline {
             steps {
                 script {
                     // Verify that Redis pods are up and running
-                    sh 'kubectl get pods -l app=redis'
+                    bat 'kubectl get pods -l app=redis'
                 }
             }
         }
@@ -62,7 +62,7 @@ pipeline {
                     clusterCommand += "--cluster-replicas 1"
 
                     // Run the Redis cluster creation command
-                    sh clusterCommand
+                    bat clusterCommand
                 }
             }
         }
