@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+  namespace: swag-intg
+spec:
+  serviceName: redis-headless
+  replicas: 6  # 3 masters, 3 replicas
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:6.2-alpine
+        command:
+          - "redis-server"
+          - "/redis-master/redis.conf"
+          - "--cluster-enabled"
+          - "yes"
+          - "--cluster-node-timeout"
+          - "5000"
+        volumeMounts:
+          - name: redis-config
+            mountPath: /redis-master
+            subPath: redis.conf
+          - name: redis-data
+            mountPath: /data
+        ports:
+          - containerPort: 6379
+  volumeClaimTemplates:
+  - metadata:
+      name: redis-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi
