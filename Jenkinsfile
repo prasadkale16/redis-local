@@ -40,7 +40,7 @@ pipeline {
                     def redisSpecificPod = "redis-0" // Specific Redis pod to check
                     def namespace = "swag-intg" // Namespace for the Redis pod
                     def timeoutMinutes = 2 // Set the timeout duration
-                    def allRunning = false
+                    def running = false
                     
                     // Loop until all Redis instances are running or timeout
                     timeout(time: timeoutMinutes, unit: 'MINUTES') {
