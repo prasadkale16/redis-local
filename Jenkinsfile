@@ -33,11 +33,37 @@ pipeline {
             }
         }
 
-        stage('Verify Deployment') {
+        stage('Check Redis Instances') {
             steps {
                 script {
-                    // Verify that Redis pods are up and running
-                    bat 'kubectl get pods -l app=redis  -n swag-intg'
+                    def redisHosts = (0..5).collect { "redis-${it}" }
+                    def redisSpecificPod = "redis-0" // Specific Redis pod to check
+                    def namespace = "swag-intg" // Namespace for the Redis pod
+                    def timeoutMinutes = 10 // Set the timeout duration
+                    def allRunning = false
+                    
+                    // Loop until all Redis instances are running or timeout
+                    timeout(time: timeoutMinutes, unit: 'MINUTES') {
+                        while (!allRunning) {
+                            allRunning = true // Assume all are running until proven otherwise
+                            
+                            // Check each Redis cluster pod
+                            redisHosts.each { host ->
+                                // Check the specific Redis pod status
+                                def podStatus = sh(script: "kubectl get pods ${host} -n ${namespace} -o jsonpath='{.status.phase}'", returnStdout: true).trim()
+                            
+                                if (podStatus != 'Running') {
+                                    allRunning = false // Set to false if the specific pod is not running
+                                    echo "${redisSpecificPod} in namespace ${namespace} is not running yet."
+                                } else {
+                                    echo "${redisSpecificPod} in namespace ${namespace} is running."
+                                }
+                            }
+
+                            // Wait before the next check
+                            sleep(time: 5, unit: 'SECONDS')
+                        }
+                    }
                 }
             }
         }
