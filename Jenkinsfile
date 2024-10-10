@@ -75,7 +75,7 @@ pipeline {
                     // Get Redis pod names for initialization
                     def redisPods = bat(returnStdout: true, script: "kubectl get pods -l app=redis -o jsonpath='{.items[*].status.podIP}'  -n swag-intg").trim()
                     echo ""
-                    echo "${jsonpath}"
+                    echo "${redisPods}"
                     def ips = redisPods.split(' ')
                     def ipList = ""
                     ips.each { ip ->
