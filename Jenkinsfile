@@ -83,11 +83,15 @@ pipeline {
                     }
 
                     // Form a Redis cluster
-                    def clusterCommand = "kubectl exec -it redis-0 -n swag-intg  -- redis-cli --cluster create  --cluster-replicas 1 ${ipList}"
+                  //  def clusterCommand = "kubectl exec -it redis-0 -n swag-intg  -- redis-cli --cluster create  --cluster-replicas 1 ${ipList}"
+                  def clusterCommand = "kubectl exec -i redis-0 -n swag-intg -- sh -c \"echo yes | redis-cli --cluster create ${ipList} --cluster-replicas 1\""
                     
-                    echo "redis command : ${clusterCommand}"
+                   // echo "redis command : ${clusterCommand}"
                     // Run the Redis cluster creation command
-                    bat clusterCommand
+                   bat clusterCommand
+
+                    //bat(script: 'kubectl exec -i redis-0 -n swag-intg -- sh -c "echo \\"yes\\" | redis-cli --cluster create ${ipList} --cluster-replicas 1')
+
                     
                 }
             }
