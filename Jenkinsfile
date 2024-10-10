@@ -37,7 +37,7 @@ pipeline {
             steps {
                 script {
                     // Verify that Redis pods are up and running
-                    bat 'kubectl get pods -l app=redis'
+                    bat 'kubectl get pods -l app=redis  -n swag-intg'
                 }
             }
         }
