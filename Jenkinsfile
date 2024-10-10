@@ -39,12 +39,13 @@ pipeline {
                     def redisHosts = (0..5).collect { "redis-${it}" }
                     def namespace = "swag-intg" // Namespace for the Redis pod
                     def timeoutMinutes = 10 // Set the timeout duration
+                    def running = false
                     echo "${redisHosts}"
                     // Loop until all Redis instances are running or timeout
                     timeout(time: timeoutMinutes, unit: 'MINUTES') {
                         redisHosts.each { host ->
                             echo "checking for ${host}"
-                            def running = false
+                            running = false
                             // Check each Redis cluster pod
                             while (!running) {
                                 // Check the specific Redis pod status
