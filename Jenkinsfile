@@ -54,9 +54,12 @@ pipeline {
                                 echo "${podStatus}"
                                 if (!podStatus.contains("Running") ) {
                                     allRunning = false // Set to false if the specific pod is not running
-                                    echo "${redisSpecificPod} in namespace ${namespace} is not running yet."
+                                    echo "${host} in namespace ${namespace} is not running yet."
                                 } else {
-                                    echo "${redisSpecificPod} in namespace ${namespace} is running."
+                                    echo "${host} in namespace ${namespace} is running."
+                                    echo "${host} removing from list"
+                                    redisHosts.remove(host)
+                                    echo "${redisHosts}"
                                 }
                             }
 
