@@ -76,15 +76,15 @@ pipeline {
                     def redisPods = bat(returnStdout: true, script: "kubectl get pods -l app=redis -o jsonpath='{.items[*].status.podIP}'  -n swag-intg").trim()
                     echo ""
                     echo "${redisPods}"
-                    def ips = redisPods.split(' ')
+                    def ips = redisPods.split(" ")
                     def ipList = ""
                     ips.each { ip ->
                         ipList = ipList + ip+":6379 "
                     }
                     // Form a Redis cluster
-                    def clusterCommand = "kubectl exec -it ${redisPods[0]} -- redis-cli --cluster create  -n swag-intg  --cluster-replicas 1 ${ipList}"
+                    def clusterCommand = "kubectl exec -it redis-0 -- redis-cli --cluster create  -n swag-intg  --cluster-replicas 1 ${ipList}"
                     
-                    echo "${clusterCommand}"
+                    echo "redis command :- ${clusterCommand}"
                     // Run the Redis cluster creation command
                     //bat clusterCommand
                     
