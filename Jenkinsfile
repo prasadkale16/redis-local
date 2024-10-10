@@ -52,7 +52,7 @@ pipeline {
                                 // Check the specific Redis pod status
                                 def podStatus = bat(script: "kubectl get pods ${host} -n ${namespace} ", returnStdout: true).trim()
                             
-                                if (podStatus != 'Running') {
+                                if (podStatus.contains("Running") ) {
                                     allRunning = false // Set to false if the specific pod is not running
                                     echo "${redisSpecificPod} in namespace ${namespace} is not running yet."
                                 } else {
