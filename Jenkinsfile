@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Clone Repo') {
             steps {
-                git 'https://your-repo-url.git'  // Git repository containing YAML files
+                git 'https://github.com/prasadkale16/redis-local.git'  // Git repository containing YAML files
             }
         }
 
