@@ -77,7 +77,7 @@ pipeline {
 
                     def redisNodes = []
                     for (pod in redisPods.tokenize(' ')) {
-                        redisNodes.add(${pod})
+                        redisNodes.add(pod)
                     }
 
                     echo ""
