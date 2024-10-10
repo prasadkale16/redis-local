@@ -32,6 +32,10 @@ spec:
             mountPath: /data
         ports:
           - containerPort: 6379
+      volumes:
+      - name: redis-config  # The volume for the ConfigMap
+        configMap:
+          name: redis-cluster-config  # Reference the ConfigMap created earlier
   volumeClaimTemplates:
   - metadata:
       name: redis-data
@@ -40,7 +44,3 @@ spec:
       resources:
         requests:
           storage: 1Gi
-  volumes:
-    - name: redis-config  # The volume for the ConfigMap
-      configMap:
-        name: redis-cluster-config  # Reference the ConfigMap created earlier
