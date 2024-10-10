@@ -39,27 +39,27 @@ pipeline {
                     def redisHosts = (0..5).collect { "redis-${it}" }
                     def namespace = "swag-intg" // Namespace for the Redis pod
                     def timeoutMinutes = 10 // Set the timeout duration
-                    def running = false
+                    def running = 1
                     
                     // Loop until all Redis instances are running or timeout
                     timeout(time: timeoutMinutes, unit: 'MINUTES') {
                         redisHosts.each { host ->
                             // Check each Redis cluster pod
-                            while (!running) {
-                                running = true // Assume all are running until proven otherwise
+                            while (running<5) {
                                 // Check the specific Redis pod status
                                 echo "kubectl get pods ${host} -n ${namespace} --no-headers"
                                 def podStatus = bat(script: "kubectl get pods ${host} -n ${namespace}  --no-headers", returnStdout: true).trim()
                                 echo "${podStatus}"
                                 if (!podStatus.contains("Running") ) {
-                                    running = false // Set to false if the specific pod is not running
                                     echo "${host} in namespace ${namespace} is not running yet."
+                                    // Wait before the next check
+                                    echo "Waiting before checking again..."
+                                    sleep(time: 20, unit: 'SECONDS')
                                 } else {
                                     echo "${host} in namespace ${namespace} is running."
+                                    running = running + 1
                                 }
-                                // Wait before the next check
-                                echo "Waiting before checking again..."
-                                sleep(time: 20, unit: 'SECONDS')
+                                
                             }
                         }
                     }
