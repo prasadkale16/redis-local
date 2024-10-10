@@ -50,7 +50,7 @@ pipeline {
                             // Check each Redis cluster pod
                             redisHosts.each { host ->
                                 // Check the specific Redis pod status
-                                def podStatus = sh(script: "kubectl get pods ${host} -n ${namespace} -o jsonpath='{.status.phase}'", returnStdout: true).trim()
+                                def podStatus = sh(script: "kubectl get pods ${host} -n ${namespace} ", returnStdout: true).trim()
                             
                                 if (podStatus != 'Running') {
                                     allRunning = false // Set to false if the specific pod is not running
