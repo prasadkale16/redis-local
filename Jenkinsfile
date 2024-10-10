@@ -37,59 +37,42 @@ pipeline {
             steps {
                 script {
                     def redisHosts = (0..5).collect { "redis-${it}" }
-                    def redisSpecificPod = "redis-0" // Specific Redis pod to check
                     def namespace = "swag-intg" // Namespace for the Redis pod
-                    def timeoutMinutes = 2 // Set the timeout duration
-                    def running = false
+                    def timeoutMinutes = 10 // Set the timeout duration
                     
                     // Loop until all Redis instances are running or timeout
                     timeout(time: timeoutMinutes, unit: 'MINUTES') {
-                        redisHosts.each { host ->
-                            // Check each Redis cluster pod
-                            while (!running) {
-                                running = true // Assume all are running until proven otherwise
+                        while (redisHosts.size() > 0) { // Continue until all hosts are confirmed running
+                            redisHosts.each { host ->
                                 // Check the specific Redis pod status
-                                echo "kubectl get pods ${host} -n ${namespace}"
-                                def podStatus = bat(script: "kubectl get pods ${host} -n ${namespace} ", returnStdout: true).trim()
+                                echo "Checking status of pod: ${host} in namespace: ${namespace}"
+                                def podStatus = bat(script: "kubectl get pod ${host} -n ${namespace} --no-headers", returnStdout: true).trim()
                                 echo "${podStatus}"
-                                if (!podStatus.contains("Running") ) {
-                                    running = false // Set to false if the specific pod is not running
+
+                                // Check if the output indicates that the pod is running
+                                if (!podStatus.contains("Running")) {
                                     echo "${host} in namespace ${namespace} is not running yet."
                                 } else {
                                     echo "${host} in namespace ${namespace} is running."
+                                    redisHosts.remove(host) // Remove the host from the list if it's running
                                 }
-                                // Wait before the next check
-                                sleep(time: 20, unit: 'SECONDS')
+                            }
+
+                            // Wait before the next check if there are still hosts left
+                            if (redisHosts.size() > 0) {
+                                echo "Waiting before checking again..."
+                                sleep(time: 10, unit: 'SECONDS')
                             }
                         }
+
+                        echo "All Redis pods are running."
                     }
                 }
             }
         }
 
-        stage('Initialize Redis Cluster') {
-            steps {
-                script {
-                    // Get Redis pod names for initialization
-                    def redisPods = bat(returnStdout: true, script: "kubectl get pods -l app=redis -o jsonpath='{.items[*].metadata.name}'  -n swag-intg").trim()
-                    def redisNodes = []
-                    
-                    // Get the IP addresses of Redis nodes
-                    for (pod in redisPods.tokenize(' ')) {
-                        redisNodes.add(bat(returnStdout: true, script: "kubectl get pod ${pod} -o jsonpath='{.status.podIP}' -n swag-intg").trim())
-                    }
+        
 
-                    // Form a Redis cluster
-                    def clusterCommand = "kubectl exec -it ${redisPods[0]} -- redis-cli --cluster create  -n swag-intg"
-                    for (ip in redisNodes) {
-                        clusterCommand += "${ip}:6379 "
-                    }
-                    clusterCommand += "--cluster-replicas 1"
 
-                    // Run the Redis cluster creation command
-                    bat clusterCommand
-                }
-            }
-        }
     }
 }
